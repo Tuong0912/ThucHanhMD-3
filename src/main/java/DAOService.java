@@ -11,21 +11,14 @@ public class DAOService {
     private final String SELECT_BY_ID = "select * from employee where id =?;";
     private final String UPDATE_EMPLOYEE = "update employee set name=?,email=?, address=?,phone=?,salary=?,department=? where id =?;";
     private final String DELETE_EMPLOYEE = "delete from employee where id=?;";
-    private final String SEARCH_BY_NAME = "select * from employee where name like concat('%' , name , '%')";
+    private final String SEARCH_BY_NAME = "select id,name,email,address,phone,salary,department from employee where name like concat('%' , ? , '%');";
 
     public List<Employee> findAll() {
         List<Employee> employees = new ArrayList<>();
         try (Statement statement = connection.createStatement();) {
             ResultSet resultSet = statement.executeQuery(SELECT_ALL);
             while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String name = resultSet.getString("name");
-                String email = resultSet.getString("email");
-                String address = resultSet.getString("address");
-                String phone = resultSet.getString("phone");
-                double salary = resultSet.getDouble("salary");
-                String department = resultSet.getString("department");
-                Employee employee = new Employee(id, name, email, address, phone, salary, department);
+                Employee employee = getEmployeeInResulSet(resultSet);
                 employees.add(employee);
             }
         } catch (SQLException e) {
@@ -94,26 +87,31 @@ public class DAOService {
         }
     }
 
-    public Employee findByName(String name) {
-        Employee employee = null;
-        try (PreparedStatement statement = connection.prepareStatement(SEARCH_BY_NAME)) {
-
+    public List<Employee> findByName(String name) {
+        List<Employee> employees = new ArrayList<>();
+        try(PreparedStatement statement = connection.prepareStatement(SEARCH_BY_NAME)){
             statement.setString(1, name);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String email = resultSet.getString("email");
-                String address = resultSet.getString("address");
-                String phone = resultSet.getString("phone");
-                double salary = resultSet.getDouble("salary");
-                String department = resultSet.getString("department");
-                employee = new Employee(id, name, email, address, phone, salary, department);
-
+                Employee employee = getEmployeeInResulSet(resultSet);
+                employees.add(employee);
             }
-            statement.executeQuery();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return employees;
+    }
+
+    private static Employee getEmployeeInResulSet(ResultSet resultSet) throws SQLException {
+        int id = resultSet.getInt("id");
+        String name = resultSet.getString("name");
+        String email = resultSet.getString("email");
+        String address = resultSet.getString("address");
+        String phone =  resultSet.getString("phone");
+        double salary = resultSet.getDouble("salary");
+        String department = resultSet.getString("department");
+        Employee employee   = new Employee(id, name, email, address, phone,salary,department);
         return employee;
     }
 }
+//id,name,email,address,phone,salary,department

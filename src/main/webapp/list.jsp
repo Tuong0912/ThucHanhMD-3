@@ -18,9 +18,11 @@
     <a href="/EmployeeServlet?action=create">Create new Employee</a>
 </p>
 
-<form action="/EmployeeServlet?action=search">
-    <input type="text">
+<form action="/EmployeeServlet?action=search" method="post">
+    <input type="text" name="name">
     <input type="submit" value="Search">
+</form>
+<form>
 <table border="1">
     <tr>
         <td >Name</td>

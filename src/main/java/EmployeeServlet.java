@@ -8,7 +8,7 @@ import java.util.List;
 @WebServlet(name = "EmployeeServlet", value = "/EmployeeServlet")
 public class EmployeeServlet extends HttpServlet {
     DAOService daoService = new DAOService();
-    int id = 0;
+
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -108,15 +108,14 @@ public class EmployeeServlet extends HttpServlet {
 
     private void searchEmployee(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String name = request.getParameter("name");
-        Employee employee = this.daoService.findByName(name);
+        List<Employee> employee = this.daoService.findByName(name);
         if (employee == null) {
             response.sendRedirect("/EmployeeServlet");
+            System.out.println("bug");
         } else {
-            List<Employee> employees = new ArrayList<>();
-            employees.add(employee);
             RequestDispatcher dispatcher = request.getRequestDispatcher("list.jsp");
-            request.setAttribute("employee", employees);
-            dispatcher.forward(request, response);
+            request.setAttribute("employee",employee);
+            dispatcher.forward(request, response);//employee
         }
     }
 
@@ -158,9 +157,9 @@ public class EmployeeServlet extends HttpServlet {
         String phone = request.getParameter("phone");
         double salary = Double.parseDouble(request.getParameter("salary"));
         String department = request.getParameter("department");
-        Employee employee = new Employee(id, name, email, address, phone, salary, department);
+        Employee employee = new Employee( name, email, address, phone, salary, department);
         this.daoService.addEmployee(employee);
-        id++;
+
         try {
             response.sendRedirect("/EmployeeServlet");
         } catch (IOException e) {
